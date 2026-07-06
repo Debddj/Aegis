@@ -26,6 +26,7 @@ class IncidentVectorStore:
 
         try:
             import os
+
             import chromadb
             if "VERCEL" in os.environ:
                 self._client = chromadb.EphemeralClient()
