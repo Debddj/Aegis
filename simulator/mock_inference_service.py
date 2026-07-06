@@ -1,13 +1,12 @@
 """Mock ML inference service with failure injection for Aegis demos."""
 
 import asyncio
-import random
-import time
 import logging
+import random
 from datetime import datetime, timezone
+
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
 
 logger = logging.getLogger("aegis.simulator")
 

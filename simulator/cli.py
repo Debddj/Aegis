@@ -1,4 +1,5 @@
-import httpx, typer
+import httpx
+import typer
 
 app = typer.Typer()
 

@@ -2,9 +2,8 @@
 
 from functools import lru_cache
 
-from backend.config import Settings
-from backend.db.session import get_db  # re-export for convenience
 from agents.orchestrator import AegisPipeline
+from backend.config import Settings
 
 
 @lru_cache()

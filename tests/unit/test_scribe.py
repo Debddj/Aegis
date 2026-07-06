@@ -1,9 +1,7 @@
 """Tests for Scribe tools — report saving and memory storage."""
 
-import os
 import json
-import tempfile
-import pytest
+import os
 from unittest.mock import patch
 
 from agents.scribe.tools import save_report

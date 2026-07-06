@@ -1,6 +1,5 @@
 """Tests for Medic risk policy classification."""
 
-import pytest
 from agents.medic.risk_policy import classify_risk
 from agents.memory.schemas import RiskTier
 

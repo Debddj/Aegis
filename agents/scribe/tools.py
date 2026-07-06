@@ -1,8 +1,8 @@
 """Scribe tools — save reports and store incidents in vector memory."""
 
-import os
 import json
 import logging
+import os
 from datetime import datetime, timezone
 
 logger = logging.getLogger("aegis.scribe.tools")

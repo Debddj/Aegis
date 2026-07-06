@@ -1,10 +1,10 @@
 """Aegis Backend — FastAPI application with middleware, logging, and SSE."""
 
+import asyncio
 import logging
 import sys
 import time
 import uuid
-import asyncio
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request
@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sse_starlette.sse import EventSourceResponse
 
-from backend.api import routes_incidents, routes_agents, routes_metrics
+from backend.api import routes_agents, routes_incidents, routes_metrics
 from backend.db.session import init_db
 
 # ── Logging setup ────────────────────────────────────────────────────────

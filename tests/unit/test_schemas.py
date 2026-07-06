@@ -1,8 +1,8 @@
 """Tests for Pydantic schema models."""
 
-import pytest
 from datetime import datetime, timezone
-from agents.memory.schemas import Anomaly, Diagnosis, RemediationAction, Incident, RiskTier
+
+from agents.memory.schemas import Anomaly, Diagnosis, Incident, RemediationAction, RiskTier
 
 
 class TestAnomaly:

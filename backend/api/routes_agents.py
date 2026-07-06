@@ -1,17 +1,17 @@
 """Agent management and approval API routes."""
 
-import uuid
 import logging
+import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
-from backend.db.session import get_db
-from backend.db.models import IncidentRecord, ApprovalRequest
 from agents.memory.schemas import Anomaly
 from agents.orchestrator import AegisPipeline
+from backend.db.models import ApprovalRequest, IncidentRecord
+from backend.db.session import get_db
 
 logger = logging.getLogger("aegis.api.agents")
 router = APIRouter()

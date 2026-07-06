@@ -7,13 +7,11 @@ Run alongside the FastAPI server on a separate port (default: 50051).
 import asyncio
 import json
 import logging
-import time
-from datetime import datetime, timezone
 from concurrent import futures
+from datetime import datetime, timezone
 
-import grpc
-from grpc import aio as grpc_aio
 import httpx
+from grpc import aio as grpc_aio
 
 logger = logging.getLogger("aegis.grpc")
 
@@ -32,8 +30,8 @@ class AegisServicer:
 
     async def TriggerPipeline(self, request, context):
         """Trigger the Aegis pipeline and stream events back to the client."""
-        from agents.orchestrator import AegisPipeline
         from agents.memory.schemas import Anomaly
+        from agents.orchestrator import AegisPipeline
 
         scenario = request.scenario if hasattr(request, 'scenario') else "latency_spike"
         logger.info("gRPC TriggerPipeline: scenario=%s", scenario)

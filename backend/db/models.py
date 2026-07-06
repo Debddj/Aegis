@@ -1,7 +1,8 @@
 """SQLAlchemy ORM models for Aegis — backed by SQLite."""
 
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Float, Boolean, Text, DateTime, JSON, Enum as SAEnum
+
+from sqlalchemy import JSON, Boolean, Column, DateTime, Float, String, Text
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()

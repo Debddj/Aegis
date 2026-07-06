@@ -1,8 +1,9 @@
 """Sentry tools — fetch live metrics from the simulator and compute deviations."""
 
-import httpx
 import json
 import logging
+
+import httpx
 
 logger = logging.getLogger("aegis.sentry.tools")
 

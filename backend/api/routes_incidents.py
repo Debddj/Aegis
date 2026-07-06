@@ -1,17 +1,16 @@
 """Incident management API routes."""
 
-import uuid
 import logging
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
-from backend.db.session import get_db
-from backend.db.models import IncidentRecord
 from agents.memory.schemas import Anomaly
 from agents.orchestrator import AegisPipeline
+from backend.db.models import IncidentRecord
+from backend.db.session import get_db
 
 logger = logging.getLogger("aegis.api.incidents")
 router = APIRouter()

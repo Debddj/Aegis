@@ -1,9 +1,11 @@
 """Integration test — full Aegis pipeline with real Gemini API calls."""
 
-import pytest
-from agents.orchestrator import AegisPipeline
-from agents.memory.schemas import Anomaly, RiskTier
 from datetime import datetime, timezone
+
+import pytest
+
+from agents.memory.schemas import Anomaly, RiskTier
+from agents.orchestrator import AegisPipeline
 
 
 @pytest.mark.asyncio

@@ -1,8 +1,9 @@
 """Sleuth tools — correlate logs, query deploys, and search incident memory."""
 
-import httpx
 import json
 import logging
+
+import httpx
 
 logger = logging.getLogger("aegis.sleuth.tools")
 

@@ -1,7 +1,6 @@
 """Tests for Sleuth tools — log correlation and deploy lookups."""
 
 import json
-import pytest
 
 
 class TestQueryIncidentMemory:

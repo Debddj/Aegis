@@ -1,9 +1,10 @@
 """Medic tools — execute remediation actions against the simulator."""
 
-import httpx
 import json
 import logging
 from datetime import datetime, timezone
+
+import httpx
 
 logger = logging.getLogger("aegis.medic.tools")
 
@@ -129,13 +130,13 @@ def execute_remediation(command_str: str) -> str:
         # e.g. restart_pod(mock_inference)
         if "(" not in command_str or not command_str.endswith(")"):
             return f"Error: Invalid command format: {command_str}"
-        
+
         name, args_str = command_str.split("(", 1)
         args_str = args_str.rsplit(")", 1)[0].strip()
-        
+
         # Clean arguments
         args = [arg.strip().strip("'\"") for arg in args_str.split(",") if arg.strip()]
-        
+
         if name == "restart_pod":
             pod_name = args[0] if args else "unknown"
             return restart_pod(pod_name)

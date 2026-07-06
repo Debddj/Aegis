@@ -14,3 +14,5 @@ chroma_db/
 .ruff_cache/
 coverage.xml
 .coverage
+docs/postmortems/
+*.db

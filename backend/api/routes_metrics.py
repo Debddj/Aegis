@@ -1,15 +1,15 @@
 """Metrics API routes — proxy to simulator and serve historical data."""
 
-import uuid
 import logging
+import uuid
 from datetime import datetime, timezone
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from backend.db.session import get_db
 from backend.db.models import MetricSnapshot
+from backend.db.session import get_db
 
 logger = logging.getLogger("aegis.api.metrics")
 router = APIRouter()

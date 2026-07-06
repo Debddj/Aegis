@@ -1,8 +1,7 @@
 """Tests for the simulator — metrics generator and failure scenarios."""
 
-import pytest
-from simulator.metrics_generator import MetricsGenerator
 from simulator.failure_scenarios import SCENARIOS, get_scenario, list_scenarios
+from simulator.metrics_generator import MetricsGenerator
 
 
 class TestMetricsGenerator:

@@ -1,4 +1,5 @@
 from google.adk.agents import Agent
+
 from .prompts import SCRIBE_SYSTEM_PROMPT
 
 scribe_agent = Agent(

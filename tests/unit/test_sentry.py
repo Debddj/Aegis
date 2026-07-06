@@ -1,8 +1,10 @@
 """Tests for Sentry tools — metric fetching and baseline deviation."""
 
 import json
+
 import pytest
-from agents.sentry.tools import compute_baseline_deviation, BASELINES
+
+from agents.sentry.tools import BASELINES, compute_baseline_deviation
 
 
 class TestComputeBaselineDeviation:

@@ -1,21 +1,21 @@
 """Aegis Pipeline Orchestrator — wires Sentry → Sleuth → Medic → Scribe."""
 
-import uuid
-import json
 import asyncio
+import json
 import logging
+import uuid
 from datetime import datetime, timezone
 
 from google.adk import Runner
 from google.adk.sessions.in_memory_session_service import InMemorySessionService
 from google.genai import types
 
+from agents.medic.agent import medic_agent
+from agents.medic.risk_policy import classify_risk
+from agents.memory.schemas import Anomaly, Diagnosis, Incident, RemediationAction, RiskTier
+from agents.scribe.agent import scribe_agent
 from agents.sentry.agent import sentry_agent
 from agents.sleuth.agent import sleuth_agent
-from agents.medic.agent import medic_agent
-from agents.scribe.agent import scribe_agent
-from agents.memory.schemas import Anomaly, Diagnosis, RemediationAction, Incident, RiskTier
-from agents.medic.risk_policy import classify_risk
 
 logger = logging.getLogger("aegis.orchestrator")
 

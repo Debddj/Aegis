@@ -1,7 +1,7 @@
 """Synthetic metrics generator for realistic time-series simulation."""
 
-import random
 import math
+import random
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 

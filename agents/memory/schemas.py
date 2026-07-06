@@ -1,7 +1,8 @@
-from pydantic import BaseModel
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
+
+from pydantic import BaseModel
 
 
 class RiskTier(str, Enum):

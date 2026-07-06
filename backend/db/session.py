@@ -1,9 +1,10 @@
 """Database session factory — SQLite with sync engine for simplicity."""
 
-import os
 import logging
+import os
+
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session, sessionmaker
 
 from backend.db.models import Base
 
