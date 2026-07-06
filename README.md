@@ -99,15 +99,24 @@ uv pip install -e ".[dev]"
 ```
 
 ### 2. Run the Stack (Docker Compose)
-Aegis is fully containerized. Start the entire system in one command:
+Aegis is fully containerized. Start the entire system in one command using the `-p aegis` namespace to prevent conflicts with other projects named `infra`:
 ```bash
-docker compose -f infra/docker-compose.yml up --build
+docker compose -p aegis -f infra/docker-compose.yml up -d
 ```
-This launches:
+This launches the following services in detached mode:
 - **Simulator** on `http://localhost:8100` (Mock ML service)
-- **FastAPI Backend** on `http://localhost:8000` (Core APIs + SSE Event Streams)
+- **FastAPI Backend** on `http://localhost:8000` (Core REST APIs + SSE Event Streams)
 - **gRPC Server** on `port 50051` (Streaming metrics/traces)
 - **Vite React Console** on `http://localhost:5173` (Obsidian-themed operator dashboard)
+
+You can check container status and logs with:
+```bash
+# Get container status and port mappings
+docker compose -p aegis -f infra/docker-compose.yml ps
+
+# Follow logs from the backend
+docker logs -f aegis-backend-1
+```
 
 ---
 
@@ -157,8 +166,11 @@ Once a failure is injected:
 ---
 
 ## 🛡️ Security & Remediation Guardrails
+ 
+ To prevent unauthorized or destructive model mutations, Aegis implements a strict risk policy:
+ - **Active Background Monitoring**: An automated loop checks metrics in the simulator every 5 seconds. If an anomaly threshold is breached (severity $\ge 0.70$), the multi-agent pipeline is run autonomously.
+ - **Auto-execution is restricted** to deterministic low-risk commands (e.g. `restart_pod`, `rebalance_queue`).
+ - **All medium/high risk commands** (e.g. `rollback_model`, `scale_down_cluster`) are locked behind an operator approval gate.
+ - **Administrative Protection**: The `/api/agents/approve/{incident_id}` route enforces a Bearer Token validator checking requests against the `AEGIS_ADMIN_TOKEN` config (defaults to `aegis-secure-token-2026`).
+ - **Remediation Sandboxing**: Remediation commands are stripped from the LLM tool context to prevent jailbreaking; they are parsed and executed programmatically by the orchestrator *only* after passing the security gate.
 
-To prevent unauthorized or destructive model mutations, Aegis implements a strict risk policy:
-- **Auto-execution is restricted** to deterministic low-risk commands (e.g. `restart_pod`, `rebalance_queue`).
-- **All medium/high risk commands** (e.g. `rollback_model`, `scale_down_cluster`, resource deletion) are locked behind the operator approval gate.
-- Remediation commands are stripped from the LLM tool context to prevent jailbreaking; they are parsed and executed programmatically by the orchestrator *only* after passing the security gate.
