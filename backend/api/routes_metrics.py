@@ -1,6 +1,7 @@
 """Metrics API routes — proxy to simulator and serve historical data."""
 
 import logging
+import os
 import uuid
 from datetime import datetime, timezone
 
@@ -8,14 +9,13 @@ import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from backend.config import settings
 from backend.db.models import MetricSnapshot
 from backend.db.session import get_db
 
 logger = logging.getLogger("aegis.api.metrics")
 router = APIRouter()
 
-SIMULATOR_URL = settings.simulator_url
+SIMULATOR_URL = os.getenv("SIMULATOR_URL", "http://localhost:8100")
 
 
 @router.get("/summary")

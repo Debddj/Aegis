@@ -2,10 +2,9 @@
 
 import json
 import logging
+import os
 
 import httpx
-
-from backend.config import settings
 
 logger = logging.getLogger("aegis.sentry.tools")
 
@@ -18,7 +17,7 @@ BASELINES = {
     "throughput_rps": 1200.0,
 }
 
-SIMULATOR_URL = settings.simulator_url
+SIMULATOR_URL = os.getenv("SIMULATOR_URL", "http://localhost:8100")
 
 
 def fetch_recent_metrics(service_name: str) -> str:

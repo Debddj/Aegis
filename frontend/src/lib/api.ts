@@ -48,6 +48,10 @@ export const api = {
     const res = await client.post(`/agents/approve/${incidentId}`, {
       approved,
       resolved_by: operator,
+    }, {
+      headers: {
+        Authorization: 'Bearer aegis-secure-token-2026',
+      }
     });
     return res.data;
   },

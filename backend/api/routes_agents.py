@@ -4,14 +4,29 @@ import logging
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from agents.memory.schemas import Anomaly
 from agents.orchestrator import AegisPipeline
+from backend.config import settings
 from backend.db.models import ApprovalRequest, IncidentRecord
 from backend.db.session import get_db
+
+
+async def verify_admin_token(authorization: str = Header(None)):
+    """Simple API token dependency validating Bearer scheme."""
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing Authorization header")
+
+    parts = authorization.split(" ")
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        raise HTTPException(status_code=401, detail="Invalid Authorization header format. Expected 'Bearer <token>'")
+
+    token = parts[1]
+    if token != settings.admin_token:
+        raise HTTPException(status_code=403, detail="Forbidden: Invalid Admin Token")
 
 logger = logging.getLogger("aegis.api.agents")
 router = APIRouter()
@@ -182,7 +197,12 @@ def list_pending_approvals(db: Session = Depends(get_db)):
 
 
 @router.post("/approve/{incident_id}")
-def approve_action(incident_id: str, decision: ApprovalDecision, db: Session = Depends(get_db)):
+def approve_action(
+    incident_id: str,
+    decision: ApprovalDecision,
+    db: Session = Depends(get_db),
+    _ = Depends(verify_admin_token)
+):
     """Approve or reject a pending remediation action."""
     approval = db.query(ApprovalRequest).filter(
         ApprovalRequest.incident_id == incident_id,

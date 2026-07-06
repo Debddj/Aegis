@@ -7,20 +7,19 @@ Run alongside the FastAPI server on a separate port (default: 50051).
 import asyncio
 import json
 import logging
+import os
 from concurrent import futures
 from datetime import datetime, timezone
 
 import httpx
 from grpc import aio as grpc_aio
 
-from backend.config import settings
-
 logger = logging.getLogger("aegis.grpc")
 
 # Port for the gRPC server
 GRPC_PORT = 50051
 
-SIMULATOR_URL = settings.simulator_url
+SIMULATOR_URL = os.getenv("SIMULATOR_URL", "http://localhost:8100")
 
 
 class AegisServicer:

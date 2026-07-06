@@ -2,15 +2,14 @@
 
 import json
 import logging
+import os
 from datetime import datetime, timezone
 
 import httpx
 
-from backend.config import settings
-
 logger = logging.getLogger("aegis.medic.tools")
 
-SIMULATOR_URL = settings.simulator_url
+SIMULATOR_URL = os.getenv("SIMULATOR_URL", "http://localhost:8100")
 
 # Audit log of all actions taken
 ACTION_LOG: list[dict] = []

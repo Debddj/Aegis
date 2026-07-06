@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     # API keys
     google_api_key: str = os.getenv("GOOGLE_API_KEY", "")
     gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
+    admin_token: str = os.getenv("AEGIS_ADMIN_TOKEN", "aegis-secure-token-2026")
 
     # Database — SQLite by default for local dev, no Postgres needed
     database_url: str = "sqlite:///./aegis.db"

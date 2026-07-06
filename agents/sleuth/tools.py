@@ -2,14 +2,13 @@
 
 import json
 import logging
+import os
 
 import httpx
 
-from backend.config import settings
-
 logger = logging.getLogger("aegis.sleuth.tools")
 
-SIMULATOR_URL = settings.simulator_url
+SIMULATOR_URL = os.getenv("SIMULATOR_URL", "http://localhost:8100")
 
 
 def correlate_logs(service_name: str) -> str:
