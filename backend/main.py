@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from sse_starlette.sse import EventSourceResponse
 
 from backend.api import routes_agents, routes_incidents, routes_metrics
@@ -238,6 +238,11 @@ async def startup():
     asyncio.create_task(poll_telemetry_loop(SessionLocal))
 
     logger.info("Aegis backend started")
+
+
+@app.get("/")
+def index():
+    return RedirectResponse(url="/docs")
 
 
 @app.get("/health")
