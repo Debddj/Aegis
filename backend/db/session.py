@@ -10,8 +10,11 @@ from backend.db.models import Base
 
 logger = logging.getLogger("aegis.db")
 
-# Default to SQLite file in project root
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./aegis.db")
+# Default to SQLite file in project root, or in-memory DB on Vercel (read-only filesystem)
+if "VERCEL" in os.environ:
+    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///:memory:")
+else:
+    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./aegis.db")
 
 # SQLAlchemy engine — connect_args needed for SQLite threading
 if DATABASE_URL.startswith("sqlite"):

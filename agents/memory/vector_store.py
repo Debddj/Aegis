@@ -25,8 +25,12 @@ class IncidentVectorStore:
             return
 
         try:
+            import os
             import chromadb
-            self._client = chromadb.PersistentClient(path=self._persist_dir)
+            if "VERCEL" in os.environ:
+                self._client = chromadb.EphemeralClient()
+            else:
+                self._client = chromadb.PersistentClient(path=self._persist_dir)
             self._collection = self._client.get_or_create_collection(
                 name=self._collection_name,
                 metadata={"description": "Aegis incident history for semantic search"},

@@ -7,7 +7,11 @@ from datetime import datetime, timezone
 
 logger = logging.getLogger("aegis.scribe.tools")
 
-REPORTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "docs", "postmortems")
+# Save reports to /tmp on Vercel's read-only environment
+if "VERCEL" in os.environ:
+    REPORTS_DIR = "/tmp/docs/postmortems"
+else:
+    REPORTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "docs", "postmortems")
 
 
 def save_report(report_content: str, incident_id: str) -> str:
