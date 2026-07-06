@@ -1,31 +1,11 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.pytest_cache/
+gitignore__pycache__/
+*.pyc
 .venv/
-venv/
-env/
-
-# Node
+.env
 node_modules/
 dist/
-.eslintcache
-
-# Env / secrets
-.env
-.env.local
-.env.*.local
-
-# IDEs
-.vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.swp
-
-# Databases
-*.db
+*.log
+.DS_Store
+.pytest_cache/
+chroma_db/
 *.sqlite3
