@@ -1,1 +1,80 @@
-// gRPC streaming definition
+syntax = "proto3";
+
+package aegis;
+
+// ── Service definitions ─────────────────────────────────────────────────
+
+service AegisService {
+  // Trigger the full incident pipeline and stream events back
+  rpc TriggerPipeline (TriggerRequest) returns (stream PipelineEvent);
+
+  // Stream real-time metrics from the simulator
+  rpc StreamMetrics (MetricsRequest) returns (stream MetricSnapshot);
+
+  // Get incident details
+  rpc GetIncident (IncidentRequest) returns (IncidentResponse);
+
+  // Submit approval decision for a pending action
+  rpc SubmitApproval (ApprovalDecision) returns (ApprovalResponse);
+}
+
+// ── Messages ────────────────────────────────────────────────────────────
+
+message TriggerRequest {
+  string scenario = 1;     // e.g., "latency_spike", "gpu_oom"
+  string service = 2;      // target service (default: "mock_inference")
+}
+
+message PipelineEvent {
+  string event_type = 1;   // "sentry", "sleuth", "medic", "scribe", "complete"
+  string agent_name = 2;
+  string payload = 3;      // JSON-encoded event data
+  string timestamp = 4;
+  string incident_id = 5;
+}
+
+message MetricsRequest {
+  string service = 1;
+  int32 interval_ms = 2;   // polling interval in milliseconds
+}
+
+message MetricSnapshot {
+  string service = 1;
+  string timestamp = 2;
+  double latency_p95_ms = 3;
+  double error_rate = 4;
+  double gpu_memory_used_pct = 5;
+  double throughput_rps = 6;
+  double data_drift_score = 7;
+}
+
+message IncidentRequest {
+  string incident_id = 1;
+}
+
+message IncidentResponse {
+  string id = 1;
+  string status = 2;
+  string anomaly_service = 3;
+  string anomaly_metric = 4;
+  double anomaly_severity = 5;
+  string diagnosis_root_cause = 6;
+  double diagnosis_confidence = 7;
+  string action_description = 8;
+  string action_command = 9;
+  string risk_tier = 10;
+  bool auto_executed = 11;
+  string report_markdown = 12;
+  string created_at = 13;
+}
+
+message ApprovalDecision {
+  string incident_id = 1;
+  bool approved = 2;
+  string resolved_by = 3;
+}
+
+message ApprovalResponse {
+  string incident_id = 1;
+  string decision = 2;    // "approved" or "rejected"
+}

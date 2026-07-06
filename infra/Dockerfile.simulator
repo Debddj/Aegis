@@ -1,1 +1,13 @@
-# Dockerfile for Simulator service
+# Lightweight simulator image
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir fastapi uvicorn[standard]
+
+COPY simulator/ simulator/
+COPY pyproject.toml ./
+
+EXPOSE 8100
+
+CMD ["uvicorn", "simulator.mock_inference_service:app", "--host", "0.0.0.0", "--port", "8100"]

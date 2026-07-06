@@ -1,24 +1,14 @@
-version: "3.9"
-
 services:
-  postgres:
-    image: postgres:16
-    environment:
-      POSTGRES_USER: aegis
-      POSTGRES_PASSWORD: aegis
-      POSTGRES_DB: aegis
-    ports: ["5432:5432"]
-    volumes: ["pgdata:/var/lib/postgresql/data"]
-
-  redis:
-    image: redis:7
-    ports: ["6379:6379"]
-
-  mock_inference:
+  simulator:
     build:
       context: ..
       dockerfile: infra/Dockerfile.simulator
     ports: ["8100:8100"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8100/health').raise_for_status()"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   backend:
     build:
@@ -28,14 +18,23 @@ services:
     ports:
       - "8000:8000"
       - "50051:50051"
-    depends_on: [postgres, redis, mock_inference]
+    depends_on:
+      simulator:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=sqlite:///./aegis.db
+      - SIMULATOR_URL=http://simulator:8100
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/health').raise_for_status()"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   frontend:
     build:
       context: ../frontend
       dockerfile: ../infra/Dockerfile.frontend
     ports: ["5173:5173"]
-    depends_on: [backend]
-
-volumes:
-  pgdata:
+    depends_on:
+      backend:
+        condition: service_healthy

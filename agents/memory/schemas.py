@@ -1,11 +1,14 @@
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
+from typing import Optional
+
 
 class RiskTier(str, Enum):
     LOW = "low"          # auto-executable, reversible
     MEDIUM = "medium"    # needs approval, reversible
     HIGH = "high"        # needs approval, potentially destructive
+
 
 class Anomaly(BaseModel):
     service: str
@@ -15,11 +18,13 @@ class Anomaly(BaseModel):
     severity: float
     detected_at: datetime
 
+
 class Diagnosis(BaseModel):
     root_cause: str
     confidence: float
     correlated_signals: list[str]
     related_incidents: list[str] = []
+
 
 class RemediationAction(BaseModel):
     description: str
@@ -28,10 +33,12 @@ class RemediationAction(BaseModel):
     reversible: bool
     auto_executed: bool = False
 
+
 class Incident(BaseModel):
     id: str
     anomaly: Anomaly
-    diagnosis: Diagnosis | None = None
-    action: RemediationAction | None = None
-    report: str | None = None
+    diagnosis: Optional[Diagnosis] = None
+    action: Optional[RemediationAction] = None
+    report: Optional[str] = None
     status: str = "open"
+    created_at: datetime = datetime.now(timezone.utc)
