@@ -1,1 +1,7 @@
-# Incident management routes
+from fastapi import APIRouter
+
+router = APIRouter()
+
+@router.get("/")
+def read_incidents():
+    return []

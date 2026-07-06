@@ -19,7 +19,7 @@ class AegisPipeline:
 
     async def _run_agent(self, agent, input_str: str) -> str:
         session_service = InMemorySessionService()
-        runner = Runner(agent=agent, session_service=session_service)
+        runner = Runner(agent=agent, session_service=session_service, app_name="aegis_app", auto_create_session=True)
         
         output_text = ""
         async for event in runner.run_async(
