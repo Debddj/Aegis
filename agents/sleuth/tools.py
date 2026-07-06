@@ -7,7 +7,9 @@ import httpx
 
 logger = logging.getLogger("aegis.sleuth.tools")
 
-SIMULATOR_URL = "http://localhost:8100"
+from backend.config import settings
+
+SIMULATOR_URL = settings.simulator_url
 
 
 def correlate_logs(service_name: str) -> str:

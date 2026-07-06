@@ -1,5 +1,8 @@
 """Aegis Backend — FastAPI application with middleware, logging, and SSE."""
 
+from dotenv import load_dotenv
+load_dotenv()  # Initialize environment variables before any other imports
+
 import asyncio
 import logging
 import sys
@@ -119,6 +122,8 @@ async def event_stream(request: Request):
 @app.on_event("startup")
 async def startup():
     init_db()
+    from agents.orchestrator import register_event_callback
+    register_event_callback(push_event)
     logger.info("Aegis backend started")
 
 

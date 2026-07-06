@@ -1,21 +1,20 @@
 """Application configuration — loaded from .env with sensible defaults."""
 
+import os
 from pydantic_settings import BaseSettings
+from dotenv import load_dotenv
+
+# Explicitly load .env file at config load time to support all tools
+load_dotenv()
 
 
 class Settings(BaseSettings):
     # API keys
-    google_api_key: str = ""
-    gemini_api_key: str = ""  # alias used in some .env files
+    google_api_key: str = os.getenv("GOOGLE_API_KEY", "")
+    gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
 
     # Database — SQLite by default for local dev, no Postgres needed
     database_url: str = "sqlite:///./aegis.db"
-
-    # Redis — optional, falls back gracefully
-    redis_url: str = ""
-
-    # ChromaDB
-    chroma_persist_dir: str = "./chroma_db"
 
     # Simulator
     simulator_url: str = "http://localhost:8100"
@@ -36,6 +35,10 @@ class Settings(BaseSettings):
         extra = "ignore"  # don't crash on unknown env vars
 
 
+# Global settings singleton for tools and modules to import directly
+settings = Settings()
+
+
 def get_settings() -> Settings:
-    """Factory function for dependency injection."""
-    return Settings()
+    """Factory function for FastAPI dependency injection."""
+    return settings

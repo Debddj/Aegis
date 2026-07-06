@@ -63,15 +63,43 @@ async def trigger_scenario(request: ScenarioRequest, db: Session = Depends(get_d
             detail=f"Unknown scenario '{request.scenario}'. Available: {AVAILABLE_SCENARIOS}",
         )
 
-    defaults = SCENARIO_DEFAULTS[request.scenario]
-    anomaly = Anomaly(
-        service="mock_inference",
-        metric=defaults["metric"],
-        observed_value=defaults["observed_value"],
-        baseline_value=defaults["baseline_value"],
-        severity=defaults["severity"],
-        detected_at=datetime.now(timezone.utc),
-    )
+    import httpx
+    from backend.config import settings
+    SIMULATOR_URL = settings.simulator_url
+
+    metrics_context = ""
+    try:
+        # 1. Inject the failure scenario into the simulator
+        logger.info("Injecting failure scenario: %s", request.scenario)
+        await httpx.post(f"{SIMULATOR_URL}/_inject/{request.scenario}", timeout=10.0)
+        
+        # 2. Fetch the newly mutated live metrics
+        metrics_resp = await httpx.get(f"{SIMULATOR_URL}/metrics", timeout=10.0)
+        metrics_resp.raise_for_status()
+        metrics_context = metrics_resp.text
+    except Exception as exc:
+        logger.warning("Could not reach simulator to inject/fetch live metrics: %s", exc)
+
+    anomaly = None
+    if metrics_context:
+        try:
+            # 3. Sentry analyzes the metrics context and outputs the Anomaly report
+            anomaly = await _pipeline.run_sentry(metrics_context)
+        except Exception as exc:
+            logger.warning("Sentry failed to analyze metrics: %s", exc)
+
+    if not anomaly:
+        # Fallback to static defaults if simulator or Sentry fails
+        logger.info("Falling back to static default anomaly report for scenario: %s", request.scenario)
+        defaults = SCENARIO_DEFAULTS[request.scenario]
+        anomaly = Anomaly(
+            service="mock_inference",
+            metric=defaults["metric"],
+            observed_value=defaults["observed_value"],
+            baseline_value=defaults["baseline_value"],
+            severity=defaults["severity"],
+            detected_at=datetime.now(timezone.utc),
+        )
 
     try:
         incident = await _pipeline.handle_anomaly(anomaly)

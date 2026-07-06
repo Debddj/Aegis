@@ -17,7 +17,9 @@ logger = logging.getLogger("aegis.grpc")
 
 # Port for the gRPC server
 GRPC_PORT = 50051
-SIMULATOR_URL = "http://localhost:8100"
+from backend.config import settings
+
+SIMULATOR_URL = settings.simulator_url
 
 
 class AegisServicer:
@@ -36,26 +38,43 @@ class AegisServicer:
         scenario = request.scenario if hasattr(request, 'scenario') else "latency_spike"
         logger.info("gRPC TriggerPipeline: scenario=%s", scenario)
 
-        # Build anomaly from scenario
-        scenario_defaults = {
-            "latency_spike": ("latency_p95", 675.0, 45.0, 0.85),
-            "error_spike": ("error_rate", 0.45, 0.005, 0.90),
-            "gpu_oom": ("gpu_memory_used_pct", 0.97, 0.55, 0.92),
-            "data_drift": ("data_drift_score", 0.35, 0.05, 0.70),
-            "cascading_failure": ("latency_p95", 540.0, 45.0, 0.95),
-        }
-
-        defaults = scenario_defaults.get(scenario, scenario_defaults["latency_spike"])
-        anomaly = Anomaly(
-            service="mock_inference",
-            metric=defaults[0],
-            observed_value=defaults[1],
-            baseline_value=defaults[2],
-            severity=defaults[3],
-            detected_at=datetime.now(timezone.utc),
-        )
+        # Build anomaly from scenario dynamically using simulator + Sentry
+        metrics_context = ""
+        try:
+            await httpx.post(f"{SIMULATOR_URL}/_inject/{scenario}", timeout=10.0)
+            metrics_resp = await httpx.get(f"{SIMULATOR_URL}/metrics", timeout=10.0)
+            metrics_resp.raise_for_status()
+            metrics_context = metrics_resp.text
+        except Exception as exc:
+            logger.warning("gRPC: Could not reach simulator to inject/fetch live metrics: %s", exc)
 
         pipeline = AegisPipeline()
+
+        anomaly = None
+        if metrics_context:
+            try:
+                anomaly = await pipeline.run_sentry(metrics_context)
+            except Exception as exc:
+                logger.warning("gRPC: Sentry failed to analyze metrics: %s", exc)
+
+        if not anomaly:
+            # Fallback to static defaults if simulator or Sentry fails
+            scenario_defaults = {
+                "latency_spike": ("latency_p95", 675.0, 45.0, 0.85),
+                "error_spike": ("error_rate", 0.45, 0.005, 0.90),
+                "gpu_oom": ("gpu_memory_used_pct", 0.97, 0.55, 0.92),
+                "data_drift": ("data_drift_score", 0.35, 0.05, 0.70),
+                "cascading_failure": ("latency_p95", 540.0, 45.0, 0.95),
+            }
+            defaults = scenario_defaults.get(scenario, scenario_defaults["latency_spike"])
+            anomaly = Anomaly(
+                service="mock_inference",
+                metric=defaults[0],
+                observed_value=defaults[1],
+                baseline_value=defaults[2],
+                severity=defaults[3],
+                detected_at=datetime.now(timezone.utc),
+            )
 
         # Stream pipeline events
         yield _make_event("sentry", "sentry", json.dumps(anomaly.model_dump(), default=str))

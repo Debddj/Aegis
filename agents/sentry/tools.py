@@ -16,7 +16,9 @@ BASELINES = {
     "throughput_rps": 1200.0,
 }
 
-SIMULATOR_URL = "http://localhost:8100"
+from backend.config import settings
+
+SIMULATOR_URL = settings.simulator_url
 
 
 def fetch_recent_metrics(service_name: str) -> str:

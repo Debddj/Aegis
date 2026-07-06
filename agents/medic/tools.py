@@ -5,10 +5,11 @@ import logging
 from datetime import datetime, timezone
 
 import httpx
+from backend.config import settings
 
 logger = logging.getLogger("aegis.medic.tools")
 
-SIMULATOR_URL = "http://localhost:8100"
+SIMULATOR_URL = settings.simulator_url
 
 # Audit log of all actions taken
 ACTION_LOG: list[dict] = []
@@ -29,11 +30,10 @@ def _log_action(action_type: str, target: str, result: dict) -> None:
 def restart_pod(pod_name: str) -> str:
     """Restart a specified Kubernetes pod by resetting the simulator service.
 
-    This simulates a pod restart by calling the simulator's reset endpoint,
-    which restores all metrics to baseline values.
+    This simulates a pod restart by calling the simulator's restart_pod endpoint.
     """
     try:
-        resp = httpx.post(f"{SIMULATOR_URL}/_inject/reset", timeout=10.0)
+        resp = httpx.post(f"{SIMULATOR_URL}/_action/restart_pod", json={"pod_name": pod_name}, timeout=10.0)
         resp.raise_for_status()
         result = resp.json()
         result["action"] = "restart_pod"
@@ -64,7 +64,7 @@ def rollback_model(model_id: str) -> str:
     the rollback in the deploy history.
     """
     try:
-        resp = httpx.post(f"{SIMULATOR_URL}/_inject/reset", timeout=10.0)
+        resp = httpx.post(f"{SIMULATOR_URL}/_action/rollback_model", json={"model_id": model_id}, timeout=10.0)
         resp.raise_for_status()
         result = resp.json()
         result["action"] = "rollback_model"
@@ -95,7 +95,7 @@ def rebalance_queue(queue_name: str) -> str:
     restore normal throughput and latency.
     """
     try:
-        resp = httpx.post(f"{SIMULATOR_URL}/_inject/reset", timeout=10.0)
+        resp = httpx.post(f"{SIMULATOR_URL}/_action/rebalance_queue", json={"queue_name": queue_name}, timeout=10.0)
         resp.raise_for_status()
         result = resp.json()
         result["action"] = "rebalance_queue"
@@ -152,4 +152,3 @@ def execute_remediation(command_str: str) -> str:
             return f"Error: Unknown command: {name}"
     except Exception as e:
         return f"Error executing command {command_str}: {e}"
-

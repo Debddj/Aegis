@@ -174,6 +174,47 @@ async def inject(scenario: str):
     return {"status": "injected", "scenario": scenario, "timestamp": now}
 
 
+@app.post("/_action/restart_pod")
+async def action_restart_pod(payload: dict = None):
+    """Action: restart pod — resets latency and error rate metrics."""
+    STATE["latency_multiplier"] = 1.0
+    STATE["error_rate"] = 0.0
+    STATE["active_scenario"] = None
+    logger.info("ACTION: restart_pod executed — latency and error rate restored")
+    return {"status": "success", "action": "restart_pod", "state": STATE}
+
+
+@app.post("/_action/rollback_model")
+async def action_rollback_model(payload: dict = None):
+    """Action: rollback model — restores all metrics to baseline and appends a rollback deploy log."""
+    now = datetime.now(timezone.utc).isoformat()
+    STATE["latency_multiplier"] = 1.0
+    STATE["error_rate"] = 0.0
+    STATE["gpu_memory_used_pct"] = 0.55
+    STATE["gpu_memory_fragmented"] = False
+    STATE["data_drift_score"] = 0.05
+    STATE["active_scenario"] = None
+
+    DEPLOY_HISTORY.append({
+        "id": "model-rollback-v1-stable",
+        "service": "mock_inference",
+        "timestamp": now,
+        "type": "model_rollback",
+    })
+    logger.info("ACTION: rollback_model executed — all metrics restored, rollback logged")
+    return {"status": "success", "action": "rollback_model", "state": STATE}
+
+
+@app.post("/_action/rebalance_queue")
+async def action_rebalance_queue(payload: dict = None):
+    """Action: rebalance queue — resets latency and error rate metrics."""
+    STATE["latency_multiplier"] = 1.0
+    STATE["error_rate"] = 0.0
+    STATE["active_scenario"] = None
+    logger.info("ACTION: rebalance_queue executed — latency and error rate restored")
+    return {"status": "success", "action": "rebalance_queue", "state": STATE}
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok", "active_scenario": STATE.get("active_scenario")}

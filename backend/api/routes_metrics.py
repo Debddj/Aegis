@@ -14,7 +14,9 @@ from backend.db.session import get_db
 logger = logging.getLogger("aegis.api.metrics")
 router = APIRouter()
 
-SIMULATOR_URL = "http://localhost:8100"
+from backend.config import settings
+
+SIMULATOR_URL = settings.simulator_url
 
 
 @router.get("/summary")

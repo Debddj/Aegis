@@ -22,6 +22,28 @@ logger = logging.getLogger("aegis.orchestrator")
 # Timeout for any single LLM agent call (seconds)
 AGENT_TIMEOUT_SECONDS = 120
 
+# ── SSE Event Callback Registry ──────────────────────────────────────────
+_event_callbacks = []
+
+
+def register_event_callback(cb) -> None:
+    """Register a callback (e.g. FastAPI SSE stream publisher)."""
+    _event_callbacks.append(cb)
+    logger.info("Registered pipeline event callback: %s", cb.__name__ if hasattr(cb, '__name__') else str(cb))
+
+
+async def publish_event(event_type: str, data: dict) -> None:
+    """Broadcast an event to all registered listeners."""
+    logger.info("Broadcasting SSE event [%s]", event_type)
+    for cb in _event_callbacks:
+        try:
+            if asyncio.iscoroutinefunction(cb):
+                await cb(event_type, data)
+            else:
+                cb(event_type, data)
+        except Exception as exc:
+            logger.warning("Event dispatch to callback %s failed: %s", cb, exc)
+
 
 def _strip_markdown_json(raw: str) -> str:
     """Strip markdown code fences from LLM JSON output."""
@@ -107,6 +129,9 @@ class AegisPipeline:
                 severity=0.5,
                 detected_at=datetime.now(timezone.utc),
             )
+        
+        # Publish Sentry anomaly detection event
+        await publish_event("sentry", anomaly.model_dump())
         return anomaly
 
     async def handle_anomaly(self, anomaly: Anomaly) -> Incident:
@@ -138,6 +163,9 @@ class AegisPipeline:
         incident.diagnosis = diagnosis
         logger.info("  Root cause (%.0f%% confidence): %s",
                      diagnosis.confidence * 100, diagnosis.root_cause[:120])
+        
+        # Publish Sleuth diagnosis event
+        await publish_event("sleuth", diagnosis.model_dump())
 
         # ── 2. Medic: propose remediation ────────────────────────────────
         logger.info("▶ Running Medic (remediation)…")
@@ -171,6 +199,9 @@ class AegisPipeline:
             logger.info("  ⏳ Awaiting approval (%s risk): %s",
                          action.risk_tier.value, action.command)
 
+        # Publish Medic remediation proposal event
+        await publish_event("medic", action.model_dump())
+
         # ── 3. Scribe: write postmortem ──────────────────────────────────
         logger.info("▶ Running Scribe (reporting)…")
         try:
@@ -189,7 +220,14 @@ class AegisPipeline:
         # Index in incident history memory
         store_in_memory(incident.model_dump_json())
 
+        # Publish Scribe report generation event
+        await publish_event("scribe", {"report": report})
+
         logger.info("═══ Incident %s → %s ═══", incident_id[:8], incident.status)
+        
+        # Publish complete trace event
+        await publish_event("complete", {"status": incident.status, "id": incident.id})
+        
         return incident
 
     async def run_full_pipeline(self, metrics_context: str) -> Incident:

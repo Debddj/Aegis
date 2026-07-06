@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from agents.memory.schemas import Anomaly
-from agents.orchestrator import AegisPipeline
+from agents.orchestrator import AegisPipeline, publish_event
 from backend.db.models import IncidentRecord
 from backend.db.session import get_db
 
@@ -102,6 +102,9 @@ async def trigger_incident(request: TriggerRequest, db: Session = Depends(get_db
         severity=request.severity,
         detected_at=datetime.now(timezone.utc),
     )
+
+    # Publish Sentry anomaly detection event manually for trace view
+    await publish_event("sentry", anomaly.model_dump())
 
     try:
         incident = await _pipeline.handle_anomaly(anomaly)
