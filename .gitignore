@@ -1,4 +1,4 @@
-gitignore__pycache__/
+__pycache__/
 *.pyc
 .venv/
 .env
@@ -9,3 +9,8 @@ dist/
 .pytest_cache/
 chroma_db/
 *.sqlite3
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+coverage.xml
+.coverage

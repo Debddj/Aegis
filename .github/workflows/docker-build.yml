@@ -1,1 +1,31 @@
-# Workflow to build and push Docker images
+name: Docker Build
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [backend, frontend, simulator]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set build context path
+        id: context
+        run: |
+          if [ "${{ matrix.service }}" = "frontend" ]; then
+            echo "path=frontend" >> $GITHUB_OUTPUT
+            echo "file=infra/Dockerfile.frontend" >> $GITHUB_OUTPUT
+          else
+            echo "path=." >> $GITHUB_OUTPUT
+            echo "file=infra/Dockerfile.${{ matrix.service }}" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Build ${{ matrix.service }} image
+        run: |
+          docker build -f ${{ steps.context.outputs.file }} -t aegis-${{ matrix.service }}:latest ${{ steps.context.outputs.path }}
