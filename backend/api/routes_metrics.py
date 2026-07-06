@@ -8,13 +8,12 @@ import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from backend.config import settings
 from backend.db.models import MetricSnapshot
 from backend.db.session import get_db
 
 logger = logging.getLogger("aegis.api.metrics")
 router = APIRouter()
-
-from backend.config import settings
 
 SIMULATOR_URL = settings.simulator_url
 

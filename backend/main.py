@@ -1,6 +1,8 @@
+# ruff: noqa: E402
 """Aegis Backend — FastAPI application with middleware, logging, and SSE."""
 
 from dotenv import load_dotenv
+
 load_dotenv()  # Initialize environment variables before any other imports
 
 import asyncio

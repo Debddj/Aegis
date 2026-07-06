@@ -7,8 +7,8 @@ class TestQueryIncidentMemory:
     """Test incident memory queries with empty/uninitialized store."""
 
     def test_empty_memory_returns_no_results(self):
-        from agents.sleuth.tools import query_incident_memory
         from agents.memory.vector_store import incident_store
+        from agents.sleuth.tools import query_incident_memory
         result = json.loads(query_incident_memory("latency spike on inference service"))
         try:
             count = incident_store.count()

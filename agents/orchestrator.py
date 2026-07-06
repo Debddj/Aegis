@@ -129,7 +129,7 @@ class AegisPipeline:
                 severity=0.5,
                 detected_at=datetime.now(timezone.utc),
             )
-        
+
         # Publish Sentry anomaly detection event
         await publish_event("sentry", anomaly.model_dump())
         return anomaly
@@ -163,7 +163,7 @@ class AegisPipeline:
         incident.diagnosis = diagnosis
         logger.info("  Root cause (%.0f%% confidence): %s",
                      diagnosis.confidence * 100, diagnosis.root_cause[:120])
-        
+
         # Publish Sleuth diagnosis event
         await publish_event("sleuth", diagnosis.model_dump())
 
@@ -224,10 +224,10 @@ class AegisPipeline:
         await publish_event("scribe", {"report": report})
 
         logger.info("═══ Incident %s → %s ═══", incident_id[:8], incident.status)
-        
+
         # Publish complete trace event
         await publish_event("complete", {"status": incident.status, "id": incident.id})
-        
+
         return incident
 
     async def run_full_pipeline(self, metrics_context: str) -> Incident:

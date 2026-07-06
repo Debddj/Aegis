@@ -1,8 +1,9 @@
 """Application configuration — loaded from .env with sensible defaults."""
 
 import os
-from pydantic_settings import BaseSettings
+
 from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
 
 # Explicitly load .env file at config load time to support all tools
 load_dotenv()

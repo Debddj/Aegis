@@ -5,6 +5,8 @@ import logging
 
 import httpx
 
+from backend.config import settings
+
 logger = logging.getLogger("aegis.sentry.tools")
 
 # Configurable baselines for deviation calculation
@@ -15,8 +17,6 @@ BASELINES = {
     "data_drift_score": 0.05,
     "throughput_rps": 1200.0,
 }
-
-from backend.config import settings
 
 SIMULATOR_URL = settings.simulator_url
 

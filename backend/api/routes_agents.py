@@ -64,6 +64,7 @@ async def trigger_scenario(request: ScenarioRequest, db: Session = Depends(get_d
         )
 
     import httpx
+
     from backend.config import settings
     SIMULATOR_URL = settings.simulator_url
 
@@ -72,7 +73,7 @@ async def trigger_scenario(request: ScenarioRequest, db: Session = Depends(get_d
         # 1. Inject the failure scenario into the simulator
         logger.info("Injecting failure scenario: %s", request.scenario)
         await httpx.post(f"{SIMULATOR_URL}/_inject/{request.scenario}", timeout=10.0)
-        
+
         # 2. Fetch the newly mutated live metrics
         metrics_resp = await httpx.get(f"{SIMULATOR_URL}/metrics", timeout=10.0)
         metrics_resp.raise_for_status()

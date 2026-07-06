@@ -5,9 +5,9 @@ import logging
 
 import httpx
 
-logger = logging.getLogger("aegis.sleuth.tools")
-
 from backend.config import settings
+
+logger = logging.getLogger("aegis.sleuth.tools")
 
 SIMULATOR_URL = settings.simulator_url
 

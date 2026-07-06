@@ -5,6 +5,7 @@ import logging
 from datetime import datetime, timezone
 
 import httpx
+
 from backend.config import settings
 
 logger = logging.getLogger("aegis.medic.tools")
